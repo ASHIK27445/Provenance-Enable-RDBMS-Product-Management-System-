@@ -552,6 +552,101 @@ def not_found(error):
 def internal_error(error):
     return jsonify({'error': 'Internal server error'}), 500
 
+
+# app.py তে এগুলো add করুন
+
+@app.route('/api/audit/customers', methods=['GET'])
+def get_audit_customers():
+    query = "SELECT * FROM Audit_Customers ORDER BY change_timestamp DESC"
+    result = execute_query(query)
+    return jsonify(result if result else [])
+
+@app.route('/api/audit/products', methods=['GET'])
+def get_audit_products():
+    query = "SELECT * FROM Audit_Products ORDER BY change_timestamp DESC"
+    result = execute_query(query)
+    return jsonify(result if result else [])
+
+@app.route('/api/audit/orders', methods=['GET'])
+def get_audit_orders():
+    query = "SELECT * FROM Audit_Orders ORDER BY change_timestamp DESC"
+    result = execute_query(query)
+    return jsonify(result if result else [])
+
+@app.route('/api/audit/orderitems', methods=['GET'])
+def get_audit_orderitems():
+    query = "SELECT * FROM Audit_OrderItems ORDER BY change_timestamp DESC"
+    result = execute_query(query)
+    return jsonify(result if result else [])
+
+@app.route('/api/audit/payments', methods=['GET'])
+def get_audit_payments():
+    query = "SELECT * FROM Audit_Payments ORDER BY change_timestamp DESC"
+    result = execute_query(query)
+    return jsonify(result if result else [])
+
+@app.route('/api/audit/deleted', methods=['GET'])
+def get_deleted_records():
+    query = """
+        SELECT 'Customer' as entity_type, customer_id as entity_id, 
+               old_name, old_email, NULL as old_price, NULL as old_status, 
+               NULL as old_total_amount, changed_by, change_timestamp, change_reason
+        FROM Audit_Customers WHERE operation_type = 'DELETE'
+        UNION ALL
+        SELECT 'Product', product_id, old_name, NULL, old_price, NULL, NULL,
+               changed_by, change_timestamp, change_reason
+        FROM Audit_Products WHERE operation_type = 'DELETE'
+        UNION ALL
+        SELECT 'Order', order_id, NULL, NULL, NULL, old_status, old_total_amount,
+               changed_by, change_timestamp, change_reason
+        FROM Audit_Orders WHERE operation_type = 'DELETE'
+        UNION ALL
+        SELECT 'Payment', payment_id, NULL, NULL, NULL, old_status, old_amount,
+               changed_by, change_timestamp, change_reason
+        FROM Audit_Payments WHERE operation_type = 'DELETE'
+        ORDER BY change_timestamp DESC
+    """
+    result = execute_query(query)
+    return jsonify(result if result else [])
+
+@app.route('/api/audit/stats', methods=['GET'])
+def get_audit_stats():
+    query = """
+        SELECT 
+            (SELECT COUNT(*) FROM Audit_Customers) + 
+            (SELECT COUNT(*) FROM Audit_Products) + 
+            (SELECT COUNT(*) FROM Audit_Orders) + 
+            (SELECT COUNT(*) FROM Audit_OrderItems) + 
+            (SELECT COUNT(*) FROM Audit_Payments) as total_audits,
+            
+            (SELECT COUNT(*) FROM Audit_Customers WHERE operation_type = 'INSERT') + 
+            (SELECT COUNT(*) FROM Audit_Products WHERE operation_type = 'INSERT') + 
+            (SELECT COUNT(*) FROM Audit_Orders WHERE operation_type = 'INSERT') + 
+            (SELECT COUNT(*) FROM Audit_OrderItems WHERE operation_type = 'INSERT') + 
+            (SELECT COUNT(*) FROM Audit_Payments WHERE operation_type = 'INSERT') as total_inserts,
+            
+            (SELECT COUNT(*) FROM Audit_Customers WHERE operation_type = 'UPDATE') + 
+            (SELECT COUNT(*) FROM Audit_Products WHERE operation_type = 'UPDATE') + 
+            (SELECT COUNT(*) FROM Audit_Orders WHERE operation_type = 'UPDATE') + 
+            (SELECT COUNT(*) FROM Audit_OrderItems WHERE operation_type = 'UPDATE') + 
+            (SELECT COUNT(*) FROM Audit_Payments WHERE operation_type = 'UPDATE') as total_updates,
+            
+            (SELECT COUNT(*) FROM Audit_Customers WHERE operation_type = 'DELETE') + 
+            (SELECT COUNT(*) FROM Audit_Products WHERE operation_type = 'DELETE') + 
+            (SELECT COUNT(*) FROM Audit_Orders WHERE operation_type = 'DELETE') + 
+            (SELECT COUNT(*) FROM Audit_OrderItems WHERE operation_type = 'DELETE') + 
+            (SELECT COUNT(*) FROM Audit_Payments WHERE operation_type = 'DELETE') as total_deletes,
+            
+            (SELECT COUNT(*) FROM Audit_Customers) as customers_count,
+            (SELECT COUNT(*) FROM Audit_Products) as products_count,
+            (SELECT COUNT(*) FROM Audit_Orders) as orders_count,
+            (SELECT COUNT(*) FROM Audit_OrderItems) as orderitems_count,
+            (SELECT COUNT(*) FROM Audit_Payments) as payments_count
+    """
+    result = execute_query(query)
+    return jsonify(result[0] if result else {})
+
+
 # ============================================
 # MAIN
 # ============================================

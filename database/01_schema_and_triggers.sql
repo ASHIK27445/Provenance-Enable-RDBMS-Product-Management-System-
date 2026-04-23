@@ -699,3 +699,5 @@ ORDER BY audit_date DESC, table_name;
 
 SELECT 'Database schema created successfully!' as Status,
        'All tables, triggers, procedures, and views are ready.' as Message;
+
+

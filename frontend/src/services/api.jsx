@@ -173,6 +173,36 @@ class ApiService {
   getDashboardStats() {
     return this.request('/dashboard/stats');
   }
+
+  // Audit Table endpoints
+getAuditCustomers() {
+  return this.request('/audit/customers');
+}
+
+getAuditProducts() {
+  return this.request('/audit/products');
+}
+
+getAuditOrders() {
+  return this.request('/audit/orders');
+}
+
+getAuditOrderItems() {
+  return this.request('/audit/orderitems');
+}
+
+getAuditPayments() {
+  return this.request('/audit/payments');
+}
+
+getDeletedRecords() {
+  return this.request('/audit/deleted');
+}
+
+getAuditStats() {
+  return this.request('/audit/stats');
+}
+
 }
 
 export default new ApiService();

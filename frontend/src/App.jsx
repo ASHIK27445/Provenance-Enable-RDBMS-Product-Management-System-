@@ -6,7 +6,7 @@ import Orders from './pages/Orders';
 import Customers from './pages/Customers';
 import Provenance from './pages/Provenance';
 import ProvenanceTimeline from './pages/ProvenanceTimeline';
-
+import AuditTables from './pages/AuditTables';
 function App() {
   const [currentPage, setCurrentPage] = useState('dashboard');
 
@@ -24,6 +24,8 @@ function App() {
         return <Provenance />;
       case 'timeline':
         return <ProvenanceTimeline />;
+      case 'audit-tables': 
+        return <AuditTables />;
       default:
         return <Dashboard />;
     }
@@ -75,6 +77,13 @@ function App() {
 
         <div className="nav-section">
           <div className="nav-label">Provenance</div>
+                    <button 
+            className={currentPage === 'audit-tables' ? 'nav-item active' : 'nav-item'}
+            onClick={() => setCurrentPage('audit-tables')}
+          >
+            <span className="nav-icon">📊</span>
+            Audit Tables
+          </button>
           <button 
             className={currentPage === 'provenance' ? 'nav-item active' : 'nav-item'}
             onClick={() => setCurrentPage('provenance')}
